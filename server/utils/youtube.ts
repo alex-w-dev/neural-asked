@@ -2,6 +2,7 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {OAuth2Client} from "google-auth-library/build/src/auth/oauth2client";
 import {google} from "googleapis";
 import {getCookie} from "cookies-next";
+import { youtube_v3} from "googleapis/build/src/apis/youtube/v3";
 
 export const YOUTUBE_AUTH_COOKIE_KEY = 'youtubeTokens'
 
@@ -49,5 +50,14 @@ export function getAuthUrl(): string {
     scope: scopes,
     // Enable incremental authorization. Recommended as a best practice.
     include_granted_scopes: true
+  });
+}
+
+export function getYoutube(
+  req?: NextApiRequest,
+  res?: NextApiResponse<any>): youtube_v3.Youtube{
+  return google.youtube({
+    version: 'v3',
+    auth: getAuthClient(req, res)
   });
 }

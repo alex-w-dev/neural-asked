@@ -1,27 +1,29 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {getAuthClient} from "@/server/utils/youtube";
+import {getAuthClient, getYoutube} from "@/server/utils/youtube";
 import {google, youtube_v3} from "googleapis";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!req.query.videoId) {
-    throw new Error('voideoId is required')
+  if (!req.body.commentId) {
+    throw new Error('body.commentId is required')
+  }
+  if (!req.body.text) {
+    throw new Error('body.text is required')
   }
 
-  var youtube = google.youtube({
-    version: 'v3',
-    auth: getAuthClient(req, res)
-  });
+  var youtube = getYoutube(req, res);
 
 
-  youtube.commentThreads.list({
+  youtube.comments.insert({
     part: ['snippet'],
-    // auth: getAuthClient(req, res),
-    videoId: req.query.videoId as string,
-    textFormat: 'plainText',
-    order: 'time',
+    requestBody: {
+      snippet: {
+        textOriginal: req.body.text,
+        parentId: req.body.commentId,
+      }
+    }
   }, function (err, data) {
     if (err) {
       console.error('Error: ' + err);
