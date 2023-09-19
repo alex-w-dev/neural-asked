@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getYoutubeForUser } from "@/server/utils/youtube";
+import { getAuthClient, getYoutubeForUser } from "@/server/utils/youtube";
+import { google, youtube_v3 } from "googleapis";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  if (!req.body.videoId) {
-    throw new Error("body.videoId is required");
+  if (!req.body.commentId) {
+    throw new Error("body.commentId is required");
   }
   if (!req.body.text) {
     throw new Error("body.text is required");
@@ -14,22 +15,16 @@ export default async function handler(
 
   var youtube = getYoutubeForUser(req, res);
 
-  youtube.commentThreads.insert(
+  youtube.comments.insert(
     {
       part: ["snippet"],
       requestBody: {
         snippet: {
-          videoId: req.body.videoId,
-          topLevelComment: {
-            snippet: {
-              videoId: req.body.videoId,
-              textOriginal: req.body.text,
-            },
-          },
+          textOriginal: req.body.text,
+          parentId: req.body.commentId,
         },
       },
     },
-    // @ts-ignore
     function (err, data) {
       if (err) {
         console.error("Error: " + err);
