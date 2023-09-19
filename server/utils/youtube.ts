@@ -3,6 +3,7 @@ import { OAuth2Client } from "google-auth-library/build/src/auth/oauth2client";
 import { google } from "googleapis";
 import { getCookie } from "cookies-next";
 import { youtube_v3 } from "googleapis/build/src/apis/youtube/v3";
+import Schema$CommentSnippet = youtube_v3.Schema$CommentSnippet;
 
 export const YOUTUBE_AUTH_COOKIE_KEY = "youtubeTokens";
 
@@ -66,10 +67,18 @@ export function getYoutubeForUser(
 export function getYoutubeCommentThreads(youtube: youtube_v3.Youtube) {
   return youtube.commentThreads.list({
     allThreadsRelatedToChannelId: process.env.YOUTUBE_CHANNEL_ID,
-    // maxResults: 100,
+    maxResults: 100,
     part: ["snippet", "replies"],
     textFormat: "plainText",
     order: "time",
     moderationStatus: "published",
   });
+}
+
+export function isMyCommentSnippet(snippet: Schema$CommentSnippet): boolean {
+  if (!snippet.authorChannelId) {
+    return true;
+  }
+
+  return snippet.authorChannelId.value === process.env.YOUTUBE_CHANNEL_ID;
 }
