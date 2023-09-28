@@ -11,7 +11,7 @@ export default async function handler(
         messages: [
           {
             role: "user",
-            content: "Как устроена нейросеть",
+            content: req.query.message || "10 случайных числел от 1 до 100",
           },
         ],
       })) + "",
